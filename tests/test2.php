@@ -1,4 +1,8 @@
-<?php 
+<?php
+
+require __DIR__ . "/../lib.php";
+require __DIR__ . "/../logic.php";
+$config = include __DIR__ ."/../config.php";
 function curlPost($url,$file) {
   $ch = curl_init();
   if (!is_resource($ch)) return false;
@@ -18,4 +22,4 @@ $filename = "data.bin";
 $file = file_get_contents($filename);
 $url = "http://localhost/api.php";
 
-echo curlPost($url, $file);
+echo curlPost($url, encrypt($file,$config));
