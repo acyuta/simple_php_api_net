@@ -181,6 +181,7 @@ function accept_current_task_for($agent_id, $config)
 
 function checkParams($d)
 {
+    //Дописать
     return isset($d["appid"]) && isset($d["time"]) && isset($d['type']);
     //&& is_long($d["appid"]) && is_long($d["time"]);
 }
