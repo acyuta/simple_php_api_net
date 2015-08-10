@@ -15,6 +15,7 @@ function setupDB($config)
   `ip` TEXT NOT NULL,
   `country` TEXT NOT NULL,
   `timestamp` INT(11) NOT NULL,
+  `custom` TEXT,
   `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
     $connection_index = "ALTER TABLE `connections`  ADD PRIMARY KEY (`id`),  ADD FULLTEXT KEY `ip` (`ip`);";
