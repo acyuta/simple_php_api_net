@@ -197,6 +197,26 @@ class CAdmin {
         ]);
         return $s->errorCode() === "00000";
     }
+
+    public static function addTaskType($name)
+    {
+        $s = static::execSql("INSERT INTO task_types (name) VALUES (:name)",[
+            ':name' => $name,
+        ]);
+        return $s->errorCode() === "00000";
+    }
+
+    public static function getTaskTypeArray()
+    {
+        $s = static::execSql("SELECT * FROM task_types;");
+        return $s->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function removeTaskType($id)
+    {
+        $s = static::execSql("DELETE FROM task_types WHERE id = :id", [":id" => $id]);
+        return $s->errorCode() === "00000";
+    }
 }
 
 CAdmin::init();

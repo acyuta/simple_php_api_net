@@ -89,6 +89,17 @@ function upz(integer) {
                 });
             }
         });
+
+        $(".button_tt_remove").click(function(){
+            var e = $(this).attr("data-target");
+            if (e != null && e != undefined && e > 0) {
+                $.post("/admin/tt.php", {'a': 'delete', 'id': e}, function(data) {
+                    if (data == "OK")
+                        $("#tt-row-"+e).hide();
+                    else alert (data);
+                });
+            }
+        });
         $("#button-refresh-table").click(function() {
            location.reload();
         });
