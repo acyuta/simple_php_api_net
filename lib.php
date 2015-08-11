@@ -21,3 +21,24 @@ function getDb($config)
         $config["db"]["password"],
         $options);
 }
+
+function execSql($db,$sql,$title,$success_result = 0)
+{
+    echo "Execute ". $title ."........";
+    /** @var PDO $db */
+    $result = $db->exec($sql);
+    if ($result === false) {
+        $db->rollBack();
+        echo "error\nError stack: " . print_r($db->errorInfo(),true) . "\n";
+        die;
+    }
+    echo "success\n";
+}
+
+function checkDbAccess($config) {
+    if (!isset($config['db'])) die("No DB Configuration");
+    if (!isset($config['db']['username'])) die("unset DB username");
+    if (!isset($config['db']['dsn'])) die("unset DB dsn");
+    if (!isset($config['db']['password'])) die("unset DB password");
+    return true;
+}

