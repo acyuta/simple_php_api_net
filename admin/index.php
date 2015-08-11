@@ -1,38 +1,26 @@
 <?php
 require_once __DIR__ . "/logic.php";
 
-?>
-<!DOCTYPE html>
-<html lang="en">
-<meta charset="UTF-8">
-<head>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
-</head>
-<body>
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">Admin Panel</a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </div><!--/.nav-collapse -->
-    </div>
-</nav>
+if(isAjax()) {
+    // Если к нам идёт Ajax запрос, то ловим его
+    $from = (validateDate(post("from"),"Y-m-d H:i")) ? strtotime(post("from")) : time() - 60*60*24;
+    $to = (validateDate(post("from"),"Y-m-d H:i")) ? strtotime(post("to")) : time();
+    $data = [
+        "online" => 0,
+        "offline" => 0,
+        "all" => CAdmin::countConnections($from,$to),
+        "new" => CAdmin::countNewAgents(time()-60*60*24,time()),
+        "last_update" => date("d.m.Y - H:i:s (\U\T\CO)",time()),
+        "count_agents" => CAdmin::countUniqueConnections($from,$to),
+        "done" => CAdmin::countDone($from,$to),
+        "in_work" => CAdmin::countInWork($from,$to),
+        "waiting_accept" => CAdmin::countWaiting($from,$to),
+    ];
+    echo json_encode($data);
+    exit;
+}
 
-<div class="container">
 
-</div>
-</body>
-</html>
+
+$content = file_get_contents("_statistic.html");
+include "_main.html";

@@ -1,0 +1,70 @@
+<div class="container">
+    <div class="page-header">
+        <div class="panel col-sm-12">
+            <div class='col-sm-5'>
+                <input type='text' class="form-control input-sm" id='datefrom' placeholder="From"/>
+            </div>
+            <div class='col-sm-5'>
+                <input type='text' class="form-control input-sm" id='dateto' placeholder="To"/>
+            </div>
+            <div class="col-sm-2">
+                <button class="btn btn-sm btn-default" id="button_get_statistic_filter">Filter it</button>
+            </div>
+            <script type="text/javascript">
+                $(function () {
+                    var options = {
+                        'useStrict': true,
+                        'format': 'YYYY-MM-DD HH:mm'
+                    };
+                    $('#datefrom').datetimepicker(options);
+                    $('#dateto').datetimepicker(options);
+                });
+            </script>
+        </div>
+        <div class="panel text-center">
+            <button class="btn btn-sm btn-default quick-statistic-btn" data-target="today">Today</button>
+            <button class="btn btn-sm btn-default quick-statistic-btn" data-target="week">Week</button>
+            <button class="btn btn-sm btn-default quick-statistic-btn" data-target="month">Month</button>
+            <button class="btn btn-sm btn-default quick-statistic-btn" data-target="year">Year</button>
+        </div>
+        <table class="table table-hover statistic_table" id="statistic_table_common">
+            <thead>
+            <tr>
+                <td>Online\offline</td>
+                <td>Connections</td>
+                <td>New agents(last 24-hours)</td>
+                <td>Last Update</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr id="common_statistic_row">
+                <td>N/A / N/A</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>Not available</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <table class="table table-hover statistic_table" id="statistic_table_agents">
+            <thead>
+            <tr>
+                <td>Unique connections</td>
+                <td>Done all task</td>
+                <td>Perform work</td>
+                <td>Waiting accept task</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr id="agent_statistic_row">
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>N/A</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <button class="btn btn-info btn-lg center-block" id="button_update_statistic">Update</button>
+    </div>
+</div>

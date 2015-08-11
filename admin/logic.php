@@ -63,6 +63,118 @@ class CAdmin {
     {
         // need to do
     }
+
+    public static function countUniqueConnections($from,$to)
+    {
+        $date_from = date("Y-m-d H:i",$from);
+        $date_to = date("Y-m-d H:i",$to);
+        /** @var PDOStatement $s */
+        $s = static::execSql("SELECT DISTINCT (appid) as appid FROM connections WHERE created >= :from AND created <= :to",[
+            ":from" => $date_from,
+            ":to" => $date_to,
+        ]);
+        if ($s !== false)
+            return $s->rowCount();
+        else {
+            return -1;
+        }
+    }
+
+    public static function countConnections($from,$to)
+    {
+        $date_from = date("Y-m-d H:i",$from);
+        $date_to = date("Y-m-d H:i",$to);
+        /** @var PDOStatement $s */
+        $s = static::execSql("SELECT * FROM connections WHERE created >= :from AND created <= :to",[
+            ":from" => $date_from,
+            ":to" => $date_to,
+        ]);
+        if ($s !== false)
+            return $s->rowCount();
+        else {
+            return -1;
+        }
+    }
+
+    public static function countDone($from, $to)
+    {
+        $date_from = date("Y-m-d H:i",$from);
+        $date_to = date("Y-m-d H:i",$to);
+        /** @var PDOStatement $s */
+        $s = static::execSql("SELECT * FROM task_agents WHERE updated >= :from AND updated <= :to AND status = :status",[
+            ":from" => $date_from,
+            ":to" => $date_to,
+            ":status" => TASK_STATUS_DONE,
+        ]);
+        if ($s !== false)
+            return $s->rowCount();
+        else {
+            return -1;
+        }
+    }
+
+    public static function countInWork($from, $to)
+    {
+        $date_from = date("Y-m-d H:i",$from);
+        $date_to = date("Y-m-d H:i",$to);
+        /** @var PDOStatement $s */
+        $s = static::execSql("SELECT * FROM task_agents WHERE updated >= :from AND updated <= :to AND status = :status",[
+            ":from" => $date_from,
+            ":to" => $date_to,
+            ":status" => TASK_STATUS_ACCEPTED,
+        ]);
+        if ($s !== false)
+            return $s->rowCount();
+        else {
+            return -1;
+        }
+    }
+
+    public static function countWaiting($from, $to)
+    {
+        $date_from = date("Y-m-d H:i",$from);
+        $date_to = date("Y-m-d H:i",$to);
+        /** @var PDOStatement $s */
+        $s = static::execSql("SELECT * FROM task_agents WHERE updated >= :from AND updated <= :to AND status = :status",[
+            ":from" => $date_from,
+            ":to" => $date_to,
+            ":status" => TASK_STATUS_WAITING_ACCEPT,
+        ]);
+        if ($s !== false)
+            return $s->rowCount();
+        else {
+            return -1;
+        }
+    }
+
+    public static function countNewAgents($from, $to)
+    {
+        $date_from = date("Y-m-d H:i",$from);
+        $date_to = date("Y-m-d H:i",$to);
+        /** @var PDOStatement $s */
+        $s = static::execSql("SELECT * FROM agent WHERE created >= :from AND created <= :to",[
+            ":from" => $date_from,
+            ":to" => $date_to,
+        ]);
+        if ($s !== false)
+            return $s->rowCount();
+        else {
+            return -1;
+        }
+    }
+
+    /**
+     * @param $sql string
+     * @param $params array
+     * @return PDOStatement
+     */
+    private static function execSql($sql, $params = null)
+    {
+        $s = static::getDb()->prepare($sql);
+        if ($s !== false)
+            $s->execute($params);
+        return $s;
+    }
 }
 
 CAdmin::init();

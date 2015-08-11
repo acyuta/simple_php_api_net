@@ -1,4 +1,10 @@
 <?php
+const TASK_STATUS_CREATED = 0;
+const TASK_STATUS_WAITING_ACCEPT = 1;
+const TASK_STATUS_ACCEPTED = 2;
+const TASK_STATUS_DONE = 3;
+const TASK_COMMON = 1;
+const TASK_PRIVATE = 0;
 function encrypt($string, $config)
 {
     $string = (is_string($string)) ? $string : strval($string);
@@ -41,4 +47,10 @@ function checkDbAccess($config) {
     if (!isset($config['db']['dsn'])) die("unset DB dsn");
     if (!isset($config['db']['password'])) die("unset DB password");
     return true;
+}
+
+function validateDate($date,$format)
+{
+    $d = DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) == $date;
 }

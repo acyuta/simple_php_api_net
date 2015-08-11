@@ -1,6 +1,7 @@
 <?php
 $config = include(__DIR__ . '/config.php');
 require_once __DIR__ . "/lib.php";
+require_once __DIR__ . "/admin/alib.php";
 
 function setupAPI($config)
 {
@@ -30,14 +31,16 @@ function setupAPI($config)
   `task_id` INT(10) UNSIGNED NOT NULL,
   `agent_id` INT(10) UNSIGNED NOT NULL,
   `status` INT(2) NOT NULL DEFAULT 0,
-  `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
     $task_agent_index = "ALTER TABLE `task_agents`  ADD UNIQUE KEY `task_agent_unique_index` (`task_id`,`agent_id`);";
     $fk_task_id = "ALTER TABLE `task_agents` ADD CONSTRAINT `fk_task_id` FOREIGN KEY (`task_id`) REFERENCES `temp`.`task`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;";
     $fk_agent_id = "ALTER TABLE `task_agents` ADD CONSTRAINT `fk_agent_id` FOREIGN KEY (`agent_id`) REFERENCES `temp`.`agent`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;";
 
     $agent_sql = "CREATE TABLE IF NOT EXISTS `agent` (
-  `id` int(10) unsigned NOT NULL
+  `id` int(10) unsigned NOT NULL,
+  `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
     $agent_index = "ALTER TABLE `agent`  ADD PRIMARY KEY (`id`),ADD UNIQUE KEY `agent_unique_index` (`id`);";
 

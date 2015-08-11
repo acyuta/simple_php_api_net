@@ -1,11 +1,6 @@
 <?php
 require_once(__DIR__ . "/lib.php");
-const TASK_STATUS_CREATED = 0;
-const TASK_STATUS_WAITING_ACCEPT = 1;
-const TASK_STATUS_ACCEPTED = 2;
-const TASK_STATUS_DONE = 3;
-const TASK_COMMON = 1;
-const TASK_PRIVATE = 0;
+
 
 
 function handle($data)
@@ -13,25 +8,22 @@ function handle($data)
     $config = include(__DIR__ . "/config.php");
     $clear_data = json_decode(decrypt($data, $config), true, 512, JSON_BIGINT_AS_STRING);
     if ($clear_data != NULL && checkParams($clear_data)) {
-        var_dump("qqq");
         if (!record_new_connection($config, $clear_data)) die;
-
+        $result = null;
         switch ($clear_data["type"]) {
             case "GETJOB":
-                return encrypt(
-                    json_encode(getJob($config, $clear_data['appid'], $clear_data['time'], $clear_data['customField'])
-                    ), $config);
+                $result = json_encode(getJob($config, $clear_data['appid'], $clear_data['time'], $clear_data['customField']));
+                break;
             case "ACCEPTEDJOB":
-                return encrypt(
-                    json_encode(acceptJob($config, $clear_data['appid'], $clear_data['time'], $clear_data['customField'])
-                    ), $config);
+                $result = json_encode(acceptJob($config, $clear_data['appid'], $clear_data['time'], $clear_data['customField']));
+                break;
             case "DONEJOB":
-                return encrypt(
-                    json_encode(doneJob($config, $clear_data['appid'], $clear_data['time'], $clear_data['customField'])
-                    ), $config);
+                $result = json_encode(doneJob($config, $clear_data['appid'], $clear_data['time'], $clear_data['customField']));
+                break;
             default:
                 return false;
         }
+        return encrypt($result,$config);
     } else
         return false;
 }
