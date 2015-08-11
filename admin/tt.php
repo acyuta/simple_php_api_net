@@ -3,7 +3,7 @@ require_once __DIR__ . "/logic.php";
 
 if (isset($_POST['name'])) {
     $u = post('name');
-    if (strlen($u) > 3 && strlen($u) < 64 && CAdmin::addTaskType($u)) {
+    if (strlen($u) > 1 && strlen($u) < 64 && CAdmin::addTaskType($u)) {
         $type = 'success';
         $msg = 'Task type added!';
     } else {

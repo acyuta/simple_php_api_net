@@ -105,8 +105,12 @@ function setupAdmin($config)
 PRIMARY KEY (`id`),
 UNIQUE (`name`)
 ) ENGINE = InnoDB;";
-    $group_sql = "CREATE TABLE `groups` ( `id` INT NOT NULL AUTO_INCREMENT , `name` INT NOT NULL , `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;";
+    $group_sql = "CREATE TABLE `groups` ( `id` INT NOT NULL AUTO_INCREMENT , `name` VARCHAR(64) NOT NULL , `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`), UNIQUE (`name`)) ENGINE = InnoDB;";
+    $agent_group = "CREATE TABLE `agent_group` (`agent_id` INT NOT NULL, `group_id` INT NOT NULL, UNIQUE (`agent_id`, `group_id`)) ENGINE = InnoDB;";
+    $task_group = "CREATE TABLE `task_group` (`task_id` INT NOT NULL, `group_id` INT NOT NULL, UNIQUE (`task_id`, `group_id`)) ENGINE = InnoDB;";
     $task_types = "CREATE TABLE `task_types` (`id` INT NOT NULL AUTO_INCREMENT , `name` VARCHAR(64) NOT NULL , PRIMARY KEY (`id`), UNIQUE (`name`)) ENGINE = InnoDB";
+
+    $fk_task_id = "ALTER TABLE `task_group` ADD CONSTRAINT `fk_task_group_id` FOREIGN KEY (`group_id`) REFERENCES `groups`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;";
 
     $default_task_types = "INSERT INTO task_types (`name`) VALUES ('DOWNLOADFILE'),('SELFDESTRUCTION')";
 
@@ -120,7 +124,9 @@ UNIQUE (`name`)
     execSql($db,$group_sql,"create groups table");
     execSql($db,$task_types,"create task types table");
     execSql($db,$default_task_types,"add default task types");
-    dummyUser($db);
+    execSql($db,$agent_group,"create agent-group table");
+    execSql($db,$task_group,"create task-group table");
+    execSql($db,$fk_task_id,"make foreign key on task_group ('group_id')");
 }
 
 function dummyUser($db) {

@@ -79,27 +79,24 @@ function upz(integer) {
                     break;
             }
         });
-        $(".button_user_remove").click(function(){
-            var e = $(this).attr("data-target");
-            if (e != null && e != undefined && e > 0) {
-                $.post("/admin/user.php", {'a': 'delete', 'id': e}, function(data) {
-                    if (data == "OK")
-                        $("#user-row-"+e).hide();
-                    else alert (data);
-                });
-            }
-        });
 
-        $(".button_tt_remove").click(function(){
-            var e = $(this).attr("data-target");
-            if (e != null && e != undefined && e > 0) {
-                $.post("/admin/tt.php", {'a': 'delete', 'id': e}, function(data) {
-                    if (data == "OK")
-                        $("#tt-row-"+e).hide();
-                    else alert (data);
-                });
-            }
-        });
+        function removeFrom(name) {
+            $(".button_"+name+"_remove").click(function(){
+                var e = $(this).attr("data-target");
+                if (e != null && e != undefined && e > 0) {
+                    $.post("/admin/"+name+".php", {'a': 'delete', 'id': e}, function(data) {
+                        if (data == "OK")
+                            location.reload();
+                        else alert (data);
+                    });
+                }
+            });
+        }
+        removeFrom('user');
+        removeFrom('tt');
+        removeFrom('group');
+
+
         $("#button-refresh-table").click(function() {
            location.reload();
         });

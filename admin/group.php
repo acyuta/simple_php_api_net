@@ -1,15 +1,14 @@
 <?php
 require_once __DIR__ . "/logic.php";
 
-if (isset($_POST['username']) && isset($_POST['password'])) {
-    $u = post('username');
-    $p = post('password');
-    if (strlen($u) > 2 && strlen($u) < 32 && strlen($p) > 0 && CAdmin::addUser($u,$p)) {
+if (isset($_POST['name'])) {
+    $name = post('name');
+    if (strlen($name) > 1 && strlen($name) < 64 && CAdmin::addGroup($name)) {
         $type = 'success';
-        $msg = 'User added!';
+        $msg = 'Group added!';
     } else {
         $type = 'warning';
-        $msg = 'User cannot create!';
+        $msg = 'Group cannot create!';
     }
 
     echo "<div class=\"alert alert-{$type} alert-dismissible\" role=\"alert\">
@@ -24,8 +23,8 @@ if (isAjax()) {
                 $v = post("id");
                 $id = intval($v);
                 if ($id > 0 && !is_array($v)) {
-                    $ans = CAdmin::removeUser($id);
-                    echo ($ans) ? "OK" : "Can't remove user";
+                    $ans = CAdmin::removeGroup($id);
+                    echo ($ans) ? "OK" : "Can't remove group";
                     exit;
                 } else exit;
             } else exit;
@@ -42,21 +41,13 @@ $content = "<div class='panel'>
 <form class=\"form-inline toggle-disabled\" method='post'>
   <div class=\"form-group\">
     <label for=\"name\">Name</label>
-    <input type=\"text\" name='username' class=\"form-control valid\" id=\"username\" placeholder=\"Jane Doe\"
+    <input type=\"text\" name='name' class=\"form-control valid\"  placeholder=\"Group name\"
      data-validation-event='keyup'
-     data-validation=\"letternumeric,required,length\"
-     data-validation-length=\"3-32\"
+     data-validation=\"alphanumeric,required,length\"
+     data-validation-length=\"2-64\"
      >
   </div>
-  <div class=\"form-group\">
-    <label for=\"p\">Password</label>
-    <input type=\"password\" name='password' class=\"form-control valid\" id=\"password\" placeholder=\"My Precious\"
-    data-validation-event='keyup'
-    data-validation=\"required,letternumeric\"
-    data-validation-error-msg='Only alphabetic chars and digits allowed'
-    >
-  </div>
-  <button type='submit' class=\"btn btn-default\">Add User</button>
+  <button type='submit' class=\"btn btn-default\">Add Group</button>
   <button class=\"btn btn-info media-right\" id='button-refresh-table'>Refresh Table</button>
 </form>
 <script>
@@ -75,21 +66,21 @@ $content .= "<table class='table table-hover'>
 <thead>
 <tr>
     <td>#</td>
-    <td>Username</td>
+    <td>Group Name</td>
     <td>Created</td>
     <td></td>
 </tr>
 </thead>
 <tbody>";
 
-$users = CAdmin::getUsersArray();
+$users = CAdmin::getGroupArray();
 $i = 0;
-foreach ($users as $u) {
+foreach ($users as $name) {
     $i++;
-    $date = date("d-m-Y", strtotime($u["created"]));
-    $id = $u['id'];
-    $actions = "<a href='#' class=\"glyphicon glyphicon-remove button_user_remove\" data-target='{$id}' aria-hidden=\"true\"  style=\"text-decoration: none\"/>";
-    $content .= "<tr id='user-row-{$id}'><td>{$i}</td><td>{$u["name"]}</td><td>{$date}</td><td>{$actions}</td></tr>";
+    $date = date("d-m-Y", strtotime($name["created"]));
+    $id = $name['id'];
+    $actions = "<a href='#' class=\"glyphicon glyphicon-remove button_group_remove\" data-target='{$id}' aria-hidden=\"true\"  style=\"text-decoration: none\"/>";
+    $content .= "<tr id='group-row-{$id}'><td>{$i}</td><td>{$name["name"]}</td><td>{$date}</td><td>{$actions}</td></tr>";
 }
 $content .= "</tbody></table>";
 $content .= "</div></div>";

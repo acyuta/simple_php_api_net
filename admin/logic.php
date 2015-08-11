@@ -217,6 +217,26 @@ class CAdmin {
         $s = static::execSql("DELETE FROM task_types WHERE id = :id", [":id" => $id]);
         return $s->errorCode() === "00000";
     }
+
+    public static function addGroup($name)
+    {
+        $s = static::execSql("INSERT INTO groups (name) VALUES (:name)",[
+            ':name' => $name,
+        ]);
+        return $s->errorCode() === "00000";
+    }
+
+    public static function removeGroup($id)
+    {
+        $s = static::execSql("DELETE FROM groups WHERE id = :id", [":id" => $id]);
+        return $s->errorCode() === "00000";
+    }
+
+    public static function getGroupArray()
+    {
+        $s = static::execSql("SELECT * FROM groups;");
+        return $s->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 
 CAdmin::init();
