@@ -175,6 +175,18 @@ class CAdmin {
             $s->execute($params);
         return $s;
     }
+
+    public static function getUsersArray()
+    {
+        $s = static::execSql("SELECT * FROM users;");
+        return $s->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function removeUser($id)
+    {
+        $s = static::execSql("DELETE FROM users WHERE id = :id", [":id" => $id]);
+        return $s->errorCode() === "00000";
+    }
 }
 
 CAdmin::init();

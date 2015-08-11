@@ -1,9 +1,14 @@
 function tag(name, content) {
     return "<" + name + ">" + content + "</" + name + ">";
 }
+function upz(integer) {
+    if (integer >= 0 && integer <= 9)
+        return "0" + integer.toString();
+    else
+        return integer;
+}
 (function ($) {
     $(document).ready(function () {
-
         function update_stats(from, to) {
             $.post("/admin/index.php", {'from': from, 'to': to}, function (data) {
                 var r = $("#common_statistic_row");
@@ -27,21 +32,13 @@ function tag(name, content) {
             });
         }
 
+        /** ACTIONS  */
         $("#button_update_statistic").click(function () {
             update_stats(null, null);
         });
-
         $("#button_get_statistic_filter").click(function () {
             update_stats($('#datefrom').val(), $('#dateto').val());
         });
-
-        function upz(integer) {
-            if (integer >= 0 && integer <= 9)
-                return "0" + integer.toString();
-            else
-                return integer;
-        }
-
         $(".quick-statistic-btn").click(function () {
             var e = $(this);
             var from = $('#datefrom');
@@ -80,6 +77,14 @@ function tag(name, content) {
                     break;
                 default:
                     break;
+            }
+        });
+        $(".button_user_remove").click(function(){
+            var e = $(this).attr("data-target");
+            if (e != null && e != undefined && e > 0) {
+                $.post("/admin/user.php", {'a': 'delete', 'id': e}, function(data) {
+                    alert(data);
+                });
             }
         });
     });

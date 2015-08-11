@@ -13,5 +13,7 @@ $json = [
 $json_string = json_encode($json,true);
 $data = openssl_encrypt($json_string, $config['cipherTypeDecryption'],
     $config["keyDecryption"], true);
+file_put_contents(__DIR__."/crypted.bin",$data);
+
 $_SERVER["REMOTE_ADDR"] = "37.49.216.74";
 echo print_r(handle($data), true);

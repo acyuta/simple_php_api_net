@@ -101,6 +101,7 @@ function setupAdmin($config)
 `name` TEXT NOT NULL ,
 `password` TEXT NOT NULL ,
 `auth_key` TEXT NOT NULL ,
+`created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY (`id`)) ENGINE = InnoDB;";
     $group_sql = "CREATE TABLE `groups` ( `id` INT NOT NULL AUTO_INCREMENT , `name` INT NOT NULL , `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;";
     $task_types = "CREATE TABLE `task_types` (`id` INT NOT NULL AUTO_INCREMENT , `name` TEXT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB";
@@ -123,7 +124,7 @@ PRIMARY KEY (`id`)) ENGINE = InnoDB;";
 function dummyUser($db) {
     $pass = hashPassword("admin");
     $key = generateRandomString();
-    $sql = "INSERT INTO user VALUES (NULL,'admin','{$pass}','{$key}');";
+    $sql = "INSERT INTO users VALUES (NULL,'admin','{$pass}','{$key}',NULL);";
     execSql($db,$sql,"add admin user");
 }
 
