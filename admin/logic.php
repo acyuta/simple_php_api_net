@@ -187,6 +187,16 @@ class CAdmin {
         $s = static::execSql("DELETE FROM users WHERE id = :id", [":id" => $id]);
         return $s->errorCode() === "00000";
     }
+
+    public static function addUser($u, $p)
+    {
+        $s = static::execSql("INSERT INTO users (name,password,auth_key) VALUES (:name,:password,:key)",[
+            ':name' => $u,
+            ':password' => hashPassword($p),
+            ':key' => generateRandomString(),
+        ]);
+        return $s->errorCode() === "00000";
+    }
 }
 
 CAdmin::init();

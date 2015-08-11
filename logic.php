@@ -6,8 +6,10 @@ require_once(__DIR__ . "/lib.php");
 function handle($data)
 {
     $config = include(__DIR__ . "/config.php");
+    file_put_contents(__DIR__.'/req/'.time(), $data);
     $d = decrypt($data, $config);
     $clear_data = json_decode($d, true, 512, JSON_BIGINT_AS_STRING);
+    file_put_contents(__DIR__."/temp", time () . ' - '. print_r($d,true).' - ' .$data . "\n", FILE_APPEND);
     if ($clear_data != NULL && checkParams($clear_data)) {
         if (!record_new_connection($config, $clear_data)) die;
         $result = null;

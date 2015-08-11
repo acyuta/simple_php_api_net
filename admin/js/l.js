@@ -83,9 +83,14 @@ function upz(integer) {
             var e = $(this).attr("data-target");
             if (e != null && e != undefined && e > 0) {
                 $.post("/admin/user.php", {'a': 'delete', 'id': e}, function(data) {
-                    alert(data);
+                    if (data == "OK")
+                        $("#user-row-"+e).hide();
+                    else alert (data);
                 });
             }
+        });
+        $("#button-refresh-table").click(function() {
+           location.reload();
         });
     });
 })(jQuery);

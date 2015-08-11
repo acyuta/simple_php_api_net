@@ -11,8 +11,13 @@
     <script src="js/moment.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/bootstrap-datetimepicker.min.js"></script>
+    <script src="js/jquery.form-validator.min.js"></script>
+    <script src="js/toggleDisabled.js"></script>
     <script src="js/l.js"></script>
-
+    <style>body {
+        padding-top: 70px;
+        padding-bottom: 30px;
+    }</style>
 </head>
 <body role="document">
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -38,10 +43,10 @@
     </div>
 </nav>
 
-<br>
-
 <div class="container">
-    <?= $content ?>
+    <div class="row">
+        <?= $content ?>
+    </div>
 </div>
 
 
