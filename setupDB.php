@@ -20,6 +20,7 @@ function setupAPI($config)
 
     $task_sql = "CREATE TABLE IF NOT EXISTS `task` (
   `id` INT UNSIGNED NOT NULL,
+  `name` TEXT NOT NULL,
   `type` TEXT NOT NULL,
   `is_common` SMALLINT(1) NOT NULL DEFAULT 1,
   `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -2,9 +2,6 @@
 
 require_once __DIR__ . "/logic.php";
 
-$filter = request('filter');
-$group = request('group');
-
 function prepare ($connections, $select_ids) {
     $agents_data = [];
     foreach ($connections as $a) {

@@ -280,6 +280,12 @@ class CAdmin {
         $db->commit();
         return true;
     }
+
+    public static function getTaskArray()
+    {
+        $s = static::execSql("SELECT * FROM task;");
+        return $s->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 
 CAdmin::init();
