@@ -255,6 +255,31 @@ class CAdmin {
         $s = static::execSql("SELECT DISTINCT appid, ip, country FROM connections");
         return $s->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public static function addAgentsToGroup($id, $agents)
+    {
+        if (!is_array($agents))
+            return false;
+        $db = static::getDb();
+        $db->beginTransaction();
+        $remove = $db->prepare("DELETE FROM agent_group WHERE group_id = :g");
+        $remove->execute([":g" => intval($id)]);
+        if ($remove->errorCode() !== "00000") {
+            $db->rollBack();
+            return false;
+        }
+        $s = $db->prepare("INSERT INTO agent_group VALUES (:a, :g)");
+        foreach ($agents as $idd )
+        {
+            $s->execute([":g" => $id, ":a" => $idd]);
+            if ($s->errorCode() !== "00000") {
+                $db->rollBack();
+                return false;
+            }
+        }
+        $db->commit();
+        return true;
+    }
 }
 
 CAdmin::init();

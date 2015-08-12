@@ -103,6 +103,14 @@ if (isAjax()) {
             $connections = CAdmin::getUniqueConnections();
             echo prepare($connections,$select);
             break;
+        case 'save':
+            if (!isset($_POST['id'])) die("no id");
+            if (!isset($_POST['data'])) die("no data");
+            $id = intval(post('id'));
+            $agents = $_POST['data'];
+            if (!is_array($agents)) die("invalid data");
+            echo (CAdmin::addAgentsToGroup($id,$agents)) ? "OK" : "can't save data";
+            break;
     }
     exit;
 }
@@ -163,7 +171,7 @@ $content .= '
 <ul class="panel panel-default selectable list-group" id="list_selection"></ul>
 </div>
 <div class="col-sm-6">
-<h3>Selected List <button class="btn btn-success">Save</button>
+<h3>Selected List <button class="btn btn-success" id="button_save_selected">Save</button>
 <button class="btn btn-default" id="button_selected_list_clear">Clear</button></h3>
 
 <ul class="panel panel-default selectable list-group" id="list_selected"></ul>

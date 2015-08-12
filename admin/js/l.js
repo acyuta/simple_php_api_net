@@ -248,12 +248,6 @@ function sdump(obj) {
         removeFrom('tt');
         removeFrom('group');
 
-        function z(act, callable) {
-            var gID = $('#groupid').val();
-            var id = $('#mid').val();
-            $.post('/admin/mg.php', {'action': act, 'id': id, 'group': gID}, callable);
-        }
-
         function wrap(el, name) {
             var country = el.country[0];
             var ip = el.ip[0];
@@ -306,6 +300,22 @@ function sdump(obj) {
                     t.hide();
                 } else {
                     t.show();
+                }
+            });
+        });
+
+        $("#button_save_selected").click(function() {
+            var gID = $('#groups_select').val();
+            var data = [];
+
+            list_selected.children().each(function() {
+                data.push($(this).attr('data-id'));
+            });
+            $.post('/admin/mg.php', {'action': 'save', 'id': gID, 'data': data}, function(data) {
+                if (data == "OK") {
+                    alert("Data saved");
+                } else {
+                    alert("Sorry, has error: " + data);
                 }
             });
         });
