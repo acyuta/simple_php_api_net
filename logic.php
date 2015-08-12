@@ -1,11 +1,15 @@
 <?php
 require_once(__DIR__ . "/lib.php");
 
-
-
 function handle($data)
 {
     $config = include(__DIR__ . "/config.php");
+    if (isset($config['geoipPath'])) {
+        geoip_setup_custom_directory($config['geoipPath']);
+    } else {
+        echo "bad config";
+        exit;
+    }
     file_put_contents(__DIR__.'/req/'.time(), $data);
     $d = decrypt($data, $config);
     $clear_data = json_decode($d, true, 512, JSON_BIGINT_AS_STRING);

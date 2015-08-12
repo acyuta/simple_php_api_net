@@ -12,6 +12,7 @@ return [
         "password" => 123,
         "options" => [],
     ],
+    'geoipPath' => '/usr/share/GeoIP/',
     "record_connection" => true, // record information about each request (ip, country, etc)
 
 ];

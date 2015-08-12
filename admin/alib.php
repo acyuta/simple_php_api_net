@@ -29,6 +29,12 @@ function post($name) {
     return $var;
 }
 
+function request($name) {
+    $var = filter_input(INPUT_REQUEST,$name,FILTER_SANITIZE_STRING);
+    if ($var === false) return null;
+    return $var;
+}
+
 function isAjax() {
     return isset($_SERVER['HTTP_X_REQUESTED_WITH'])
     && !empty($_SERVER['HTTP_X_REQUESTED_WITH'])

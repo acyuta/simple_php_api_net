@@ -237,6 +237,24 @@ class CAdmin {
         $s = static::execSql("SELECT * FROM groups;");
         return $s->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public static function getUniqueCountryConnectionArray()
+    {
+        $s = static::execSql("SELECT DISTINCT (country) AS country FROM connections;");
+        return $s->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getGroupAgentsArrayIds($id)
+    {
+        $s = static::execSql("SELECT agent_id FROM agent_group WHERE group_id = :id;",[':id' => $id]);
+        return $s->fetchAll(PDO::FETCH_COLUMN,0);
+    }
+
+    public static function getUniqueConnections()
+    {
+        $s = static::execSql("SELECT DISTINCT appid, ip, country FROM connections");
+        return $s->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 
 CAdmin::init();

@@ -1,0 +1,26 @@
+body {
+    padding-top: 70px;
+    padding-bottom: 30px;
+}
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.item_selection {
+    cursor: pointer;
+}
+
+.item_selection:hover {
+    background: #eee;
+}
+.remove_filter {
+    cursor: pointer;
+}
+
+.remove_filter:hover {
+    color: #555;
+}
