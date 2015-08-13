@@ -395,11 +395,11 @@ function upz(integer) {
                             var table_row = $('#task_list_table');
                             var count = table_row.children().size() + 1;
                             var delete_button = '<button class="btn btn-sm btn-danger delete-task-button" data-id="' + data.id + '">Delete</button>';
-                            var tooltip = '<button class="btn btn-sm btn-info" data-toggle="tooltip" data-placement="left" title="'+ additional+ '">See JSON</button>';
+                            var tooltip = '<button class="btn btn-sm btn-info" data-toggle="tooltip" data-placement="left" title="' + additional + '">See JSON</button>';
                             var html = tag('tr',
                                 tag('td', count) + tag('td', name)
                                 + tag('td', type_name) + tag('td', group_name)
-                                + tag('td', delete_button)
+                                + tag('td', tooltip + ' ' + delete_button)
                             );
                             table_row.append(html);
 

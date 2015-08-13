@@ -123,9 +123,9 @@ foreach($tasks as $t) {
     else
         $group = $t['groups'];
     $additional = $t['additional'];
-    $button = "<button class='btn btn-sm btn-danger delete-task-button' data-id='{$id}'>Delete</button>";
+    $delete_button = "<button class='btn btn-sm btn-danger delete-task-button' data-id='{$id}'>Delete</button>";
     $additional_button = "<button class='btn btn-sm btn-info' data-toggle='tooltip' data-placement='left' title='{$additional}'>See JSON</button>";
-    $content .= "<tr><td>{$i}</td><td>{$name}</td><td>{$type}</td><td>{$group}</td><td>{$button} {$additional_button}</td></tr>";
+    $content .= "<tr><td>{$i}</td><td>{$name}</td><td>{$type}</td><td>{$group}</td><td>{$additional_button} {$delete_button} </td></tr>";
 }
 $content .= '
             </tbody>

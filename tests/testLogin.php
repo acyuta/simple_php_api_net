@@ -3,17 +3,20 @@
 require_once __DIR__ . "/../lib.php";
 require_once __DIR__ . "/../logic.php";
 $config = include __DIR__ . "/../config.php";
+const GET = "GETJOB";
+const ACCEPT = "ACCEPTEDJOB";
+const DONE = "DONEJOB";
 
 $json = [
     "appid" => "4",
     "time" => "1435093393",
-    "type" => "GETJOB",
+    "type" => GET,
     "customField" => [],
 ];
 $json_string = json_encode($json,true);
 $data = openssl_encrypt($json_string, $config['cipherTypeDecryption'],
     $config["keyDecryption"], true);
-file_put_contents(__DIR__."/crypted.bin",$data);
 
 $_SERVER["REMOTE_ADDR"] = "37.49.216.74";
-echo print_r(handle($data), true);
+echo $json_string . "\n";
+echo print_r(handle($data), true) . "\n";

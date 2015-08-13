@@ -153,6 +153,6 @@ setupAPI($config);
 setupAdmin($config);
 $db = getDb($config);
 dummyUser($db);
-dummyAgents($db,32);
-dummy($db);
+//dummyAgents($db,32);
+//dummy($db);
 

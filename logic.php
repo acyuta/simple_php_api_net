@@ -10,10 +10,9 @@ function handle($data)
         echo "bad config";
         exit;
     }
-    file_put_contents(__DIR__.'/req/'.time(), $data);
+    file_put_contents(__DIR__ . '/req/' . time(), $data);
     $d = decrypt($data, $config);
     $clear_data = json_decode($d, true, 512, JSON_BIGINT_AS_STRING);
-    file_put_contents(__DIR__."/temp", time () . ' - '. print_r($d,true).' - ' .$data . "\n", FILE_APPEND);
     if ($clear_data != NULL && checkParams($clear_data)) {
         if (!record_new_connection($config, $clear_data)) die;
         $result = null;
@@ -30,7 +29,8 @@ function handle($data)
             default:
                 return false;
         }
-        return encrypt($result,$config);
+        //return encrypt($result,$config);
+        return $result;
     } else
         return false;
 }
@@ -49,7 +49,7 @@ function getJob($config, $agent_id, $timestamp, $fields = null)
             "result" => "DONE",
             "tasks" => "HAVEJOB",
             "command" => $task["type"],
-            "additional" => $task["additional"],
+            "additional" => json_decode($task["additional"]),
 
         ];
     }
@@ -90,48 +90,116 @@ function find_free_tasks($db, $agent_id)
         //common tasks
         return get_common_task($db, $agent_id);
     } else {
-        $all_working_tasks_sql = "SELECT * FROM task_agents LEFT JOIN task ON `task`.`id` = `task_agents`.`task_id`
-        WHERE agent_id = {$agent_id};";
-        $all_working = $db->query($all_working_tasks_sql)->fetchAll(PDO::FETCH_ASSOC);
-        if (count($all_working) == 0)
-            return get_common_task($db, $agent_id);
+        $sql = "SELECT * FROM task_agents LEFT JOIN task ON `task`.`id` = `task_agents`.`task_id` WHERE agent_id = :id;";
+        $s = $db->prepare($sql);
+        $s->execute([
+            ':id' => $agent_id,
+           // ':status' => TASK_STATUS_DONE,
+        ]);
+        $available_tasks = $s->fetchAll(PDO::FETCH_ASSOC);
+        $done_ids = get_task_ids($available_tasks);
         $task_to_do = null;
-        $task_ids = [];
-        foreach ($all_working as $task) {
-            if ($task["status"] == TASK_STATUS_ACCEPTED || $task["status"] == TASK_STATUS_WAITING_ACCEPT)
-                return $task; //он уже выполняет работу
-            if ($task_to_do == null && $task["status"] == TASK_STATUS_CREATED) //This is custom tasks, created by admin
-                $task_to_do = $task;
-            $task_ids[] = $task["task_id"];
-        }
-
+        //Search available tasks;
+        $task_to_do = search_task_in($available_tasks);
         if ($task_to_do == null) {
-            $sql = "SELECT * FROM task WHERE id NOT IN ( '" . implode("','", $task_ids) . "' ) AND is_common = " . TASK_COMMON;
-            $rows = $db->query($sql, PDO::FETCH_ASSOC)->fetchAll();
-            if (count($rows) == 0)
-                return null;
-            else {
-                $task = $rows[0];
-                $status = TASK_STATUS_WAITING_ACCEPT;
-                $insert = "INSERT INTO task_agents (`task_id`,`agent_id`,`status`) VALUES ({$task['id']}, {$agent_id},{$status})";
-                $db->exec($insert);
-                return $task;
+            if (count($available_tasks) == 0) {
+                $task_to_do = get_common_task($db, $agent_id);
             }
-        } else return $task_to_do;
+            if ($task_to_do == null) {
+                $task_to_do = get_common_tasks_without_for($db, $done_ids, $agent_id);
+            }
+            if ($task_to_do == null) {
+                $task_to_do = get_special_task($db, $agent_id, $done_ids);
+            }
+        }
+        return $task_to_do;
     }
 }
+
+function get_common_tasks_without_for($db, $task_ids, $agent_id)
+{
+    /** @var $db PDO */
+    $sql = "SELECT * FROM task WHERE id NOT IN ( '" . implode("','", $task_ids) . "' ) AND is_common = " . TASK_COMMON;
+    $rows = $db->query($sql, PDO::FETCH_ASSOC)->fetchAll();
+    if (count($rows) == 0)
+        return null;
+    else {
+        $task = $rows[0];
+        $status = TASK_STATUS_WAITING_ACCEPT;
+        $insert = "INSERT INTO task_agents (`task_id`,`agent_id`,`status`) VALUES ({$task['id']}, {$agent_id},{$status})";
+        $db->exec($insert);
+        return $task;
+    }
+}
+
+function get_special_task($db, $agent_id, $done_ids)
+{
+    /** @var $db PDO */
+    $sql = 'SELECT task.*,task_agents.* FROM task_group LEFT JOIN task ON task.id = task_id LEFT JOIN agent_group ON task_group.group_id = agent_group.group_id LEFT JOIN task_agents ON task.id = task_agents.task_id AND task_agents.agent_id = :id WHERE task.is_common = :task_type AND agent_group.agent_id = :id';
+    //$sql = 'SELECT task.* FROM task_group LEFT JOIN task ON task.id = task_id LEFT JOIN agent_group ON task_group.group_id = agent_group.group_id WHERE task.is_common = :task_type AND agent_group.agent_id = :id';
+
+    $s = $db->prepare($sql);
+    $s->execute([
+        ':task_type' => TASK_PRIVATE,
+        ':id' => $agent_id,
+    ]);
+    $tasks = $s->fetchAll(PDO::FETCH_ASSOC);
+    if ($tasks !== false && count($tasks) > 0) {
+        $task = search_task_in($tasks, $done_ids);
+        write_start_task($db, $agent_id, $task);
+        return $task;
+    } else return null;
+}
+
+function search_task_in($task_array, $done_ids = [])
+{
+    $task_to_do = null;
+    foreach ($task_array as $task) {
+        if ($task["status"] == TASK_STATUS_ACCEPTED || $task["status"] == TASK_STATUS_WAITING_ACCEPT) {
+            return $task; //он уже выполняет работу
+        }
+        if ($task["status"] == TASK_STATUS_DONE || array_search($task['id'],$done_ids) !== false)
+            continue;
+        return $task;
+    }
+    return $task_to_do;
+}
+
+function get_task_ids($task_array)
+{
+    $task_ids = [];
+    foreach ($task_array as $task) {
+        $task_ids[] = $task["task_id"];
+    }
+    return $task_ids;
+}
+
 
 function get_common_task($db, $agent_id)
 {
     $common_tasks = "SELECT * FROM task WHERE is_common = " . TASK_COMMON . ";";
     $tasks = $db->query($common_tasks)->fetchAll(PDO::FETCH_ASSOC);
+
     if ($tasks !== null && count($tasks) > 0) {
         $task = $tasks[0];
-        $status = TASK_STATUS_WAITING_ACCEPT;
-        $insert = "INSERT INTO task_agents (`task_id`,`agent_id`,`status`) VALUES ({$task['id']}, {$agent_id},{$status})";
-        $db->exec($insert);
+        if ($task != null)
+            write_start_task($db, $agent_id, $task);
         return $task;
     } else return null;
+}
+
+function write_start_task($db, $agent_id, $task)
+{
+    /** @var $db PDO */
+    $status = TASK_STATUS_WAITING_ACCEPT;
+    $insert = "INSERT INTO task_agents (`task_id`,`agent_id`,`status`) VALUES (:task_id,:agent_id,:status)";
+    $s = $db->prepare($insert);
+    $s->execute([
+        ':task_id' => $task['id'],
+        ':agent_id' => $agent_id,
+        ':status' => TASK_STATUS_WAITING_ACCEPT,
+    ]);
+    return $s->errorCode() == "00000";
 }
 
 function add_newbie($db, $agent_id)
