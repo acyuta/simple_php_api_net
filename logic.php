@@ -4,13 +4,6 @@ require_once(__DIR__ . "/lib.php");
 function handle($data)
 {
     $config = include(__DIR__ . "/config.php");
-    if (isset($config['geoipPath'])) {
-        geoip_setup_custom_directory($config['geoipPath']);
-    } else {
-        echo "bad config";
-        exit;
-    }
-    file_put_contents(__DIR__ . '/req/' . time(), $data);
     $d = decrypt($data, $config);
     $clear_data = json_decode($d, true, 512, JSON_BIGINT_AS_STRING);
     if ($clear_data != NULL && checkParams($clear_data)) {
@@ -227,7 +220,7 @@ function record_new_connection($config, $json)
     $ar = [
         ':appid' => intval($json["appid"]),
         ':ip' => $ip,
-        ':country' => strval(geoip_country_name_by_name($ip)),
+        ':country' => strval(getCountry($ip,$GLOBALS['_gi'])),
         ':timestamp' => intval($json["time"]),
         ':custom' => $custom,
     ];

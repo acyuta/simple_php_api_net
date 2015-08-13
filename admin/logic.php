@@ -66,7 +66,12 @@ class CAdmin
 
     private static function updateAuthKey($id)
     {
-        // need to do
+        $s = static::execSql('UPDATE users SET auth_key = :key WHERE id = :id',[
+            ':auth_key' => generateRandomString(),
+            ':id' => $id,
+        ]);
+
+        return $s->errorCode() == "00000";
     }
 
     public static function countUniqueConnections($from, $to)
