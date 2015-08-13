@@ -6,15 +6,6 @@ const TASK_STATUS_DONE = 3;
 const TASK_COMMON = 1;
 const TASK_PRIVATE = 0;
 
-require __DIR__.'/geoip2.phar';
-require __DIR__.'/geoip/geoip.inc';
-global $_gi;
-$_gi = geoip_open(__DIR__ .'/GeoIP.dat',GEOIP_STANDARD);
-
-function getCountry($ip,$gi) {
-    return geoip_country_name_by_addr($gi,$ip);
-}
-
 function encrypt($string, $config)
 {
     $string = (is_string($string)) ? $string : strval($string);

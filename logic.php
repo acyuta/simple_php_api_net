@@ -1,5 +1,7 @@
 <?php
 require_once(__DIR__ . "/lib.php");
+require_once __DIR__.'/geoip2.phar';
+require_once __DIR__.'/geoip/geoip.inc';
 
 function handle($data)
 {
@@ -220,7 +222,7 @@ function record_new_connection($config, $json)
     $ar = [
         ':appid' => intval($json["appid"]),
         ':ip' => $ip,
-        ':country' => strval(getCountry($ip,$GLOBALS['_gi'])),
+        ':country' => strval(getCountry($ip)),
         ':timestamp' => intval($json["time"]),
         ':custom' => $custom,
     ];
@@ -249,5 +251,10 @@ function checkParams($d)
     //Дописать
     return isset($d["appid"]) && isset($d["time"]) && isset($d['type'])
     && (intval($d["appid"]) != 0) && (intval($d["time"]) != 0);
+}
+
+function getCountry($ip) {
+    $_gi = geoip_open(__DIR__ .'/GeoIP.dat',GEOIP_STANDARD);
+    return geoip_country_name_by_addr($_gi,$ip);
 }
 

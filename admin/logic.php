@@ -2,14 +2,6 @@
 require_once __DIR__ . "/alib.php";
 require_once __DIR__ . "/../lib.php";
 
-error_reporting(E_ALL);
-
-// Добавлять в отчет все PHP ошибки
-error_reporting(-1);
-
-// То же, что и error_reporting(E_ALL);
-ini_set('error_reporting', E_ALL);
-
 if (!CAdmin::checkLogin() && $_SERVER['PHP_SELF'] !== '/admin/login.php')
     header('Location: /admin/login.php');
 
@@ -337,6 +329,11 @@ class CAdmin
         ]);
 
         return $s->errorCode() == "00000";
+    }
+
+    public static function logout()
+    {
+        setcookie(static::LOGIN_COOKIE,'',time() - 3600,"/admin/");
     }
 }
 
