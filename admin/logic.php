@@ -14,7 +14,8 @@ if (!CAdmin::checkLogin() && $_SERVER['PHP_SELF'] !== '/admin/login.php')
     header('Location: /admin/login.php');
 
 
-class CAdmin {
+class CAdmin
+{
 
     const LOGIN_COOKIE = 'ci';
 
@@ -22,28 +23,33 @@ class CAdmin {
     private static $_db;
     private static $_config;
 
-    static function init(){
+    static function init()
+    {
         static::$_config = include_once __DIR__ . "/../config.php";
         static::$_db = getDb(static::$_config);
     }
 
     /** @return PDO */
-    static function getDb() {
+    static function getDb()
+    {
         return static::$_db;
     }
 
-    static function setCookie($name, $value, $time = null) {
+    static function setCookie($name, $value, $time = null)
+    {
         if ($time == null || !is_int($time))
             // Day cookie
-            $time = (isset(static::$_config['cookie_time'])) ? static::$_config['cookie_time'] : time()+60*60*24;
-        setcookie($name,$value,$time,"/admin/");
+            $time = (isset(static::$_config['cookie_time'])) ? static::$_config['cookie_time'] : time() + 60 * 60 * 24;
+        setcookie($name, $value, $time, "/admin/");
     }
 
-    static function checkLogin() {
+    static function checkLogin()
+    {
         return isset($_COOKIE[static::LOGIN_COOKIE]);
     }
 
-    static function login($username,$password) {
+    static function login($username, $password)
+    {
         if (!is_string($username) || !is_string($password))
             return false;
         $sql = "SELECT * FROM users WHERE name = :username;";
@@ -51,9 +57,8 @@ class CAdmin {
         $s = $db->prepare($sql);
         $s->execute([":username" => $username]);
         $user = $s->fetch(PDO::FETCH_ASSOC);
-        if ($user != null && $user !== false && verifyPassword($password,$user["password"]))
-        {
-            static::setCookie(static::LOGIN_COOKIE,$user["auth_key"]);
+        if ($user != null && $user !== false && verifyPassword($password, $user["password"])) {
+            static::setCookie(static::LOGIN_COOKIE, $user["auth_key"]);
             static::updateAuthKey($user["id"]);
             return true;
         } else return false;
@@ -64,12 +69,12 @@ class CAdmin {
         // need to do
     }
 
-    public static function countUniqueConnections($from,$to)
+    public static function countUniqueConnections($from, $to)
     {
-        $date_from = date("Y-m-d H:i",$from);
-        $date_to = date("Y-m-d H:i",$to);
+        $date_from = date("Y-m-d H:i", $from);
+        $date_to = date("Y-m-d H:i", $to);
         /** @var PDOStatement $s */
-        $s = static::execSql("SELECT DISTINCT (appid) as appid FROM connections WHERE created >= :from AND created <= :to",[
+        $s = static::execSql("SELECT DISTINCT (appid) as appid FROM connections WHERE created >= :from AND created <= :to", [
             ":from" => $date_from,
             ":to" => $date_to,
         ]);
@@ -80,12 +85,12 @@ class CAdmin {
         }
     }
 
-    public static function countConnections($from,$to)
+    public static function countConnections($from, $to)
     {
-        $date_from = date("Y-m-d H:i",$from);
-        $date_to = date("Y-m-d H:i",$to);
+        $date_from = date("Y-m-d H:i", $from);
+        $date_to = date("Y-m-d H:i", $to);
         /** @var PDOStatement $s */
-        $s = static::execSql("SELECT * FROM connections WHERE created >= :from AND created <= :to",[
+        $s = static::execSql("SELECT * FROM connections WHERE created >= :from AND created <= :to", [
             ":from" => $date_from,
             ":to" => $date_to,
         ]);
@@ -98,10 +103,10 @@ class CAdmin {
 
     public static function countDone($from, $to)
     {
-        $date_from = date("Y-m-d H:i",$from);
-        $date_to = date("Y-m-d H:i",$to);
+        $date_from = date("Y-m-d H:i", $from);
+        $date_to = date("Y-m-d H:i", $to);
         /** @var PDOStatement $s */
-        $s = static::execSql("SELECT * FROM task_agents WHERE updated >= :from AND updated <= :to AND status = :status",[
+        $s = static::execSql("SELECT * FROM task_agents WHERE updated >= :from AND updated <= :to AND status = :status", [
             ":from" => $date_from,
             ":to" => $date_to,
             ":status" => TASK_STATUS_DONE,
@@ -115,10 +120,10 @@ class CAdmin {
 
     public static function countInWork($from, $to)
     {
-        $date_from = date("Y-m-d H:i",$from);
-        $date_to = date("Y-m-d H:i",$to);
+        $date_from = date("Y-m-d H:i", $from);
+        $date_to = date("Y-m-d H:i", $to);
         /** @var PDOStatement $s */
-        $s = static::execSql("SELECT * FROM task_agents WHERE updated >= :from AND updated <= :to AND status = :status",[
+        $s = static::execSql("SELECT * FROM task_agents WHERE updated >= :from AND updated <= :to AND status = :status", [
             ":from" => $date_from,
             ":to" => $date_to,
             ":status" => TASK_STATUS_ACCEPTED,
@@ -132,10 +137,10 @@ class CAdmin {
 
     public static function countWaiting($from, $to)
     {
-        $date_from = date("Y-m-d H:i",$from);
-        $date_to = date("Y-m-d H:i",$to);
+        $date_from = date("Y-m-d H:i", $from);
+        $date_to = date("Y-m-d H:i", $to);
         /** @var PDOStatement $s */
-        $s = static::execSql("SELECT * FROM task_agents WHERE updated >= :from AND updated <= :to AND status = :status",[
+        $s = static::execSql("SELECT * FROM task_agents WHERE updated >= :from AND updated <= :to AND status = :status", [
             ":from" => $date_from,
             ":to" => $date_to,
             ":status" => TASK_STATUS_WAITING_ACCEPT,
@@ -149,10 +154,10 @@ class CAdmin {
 
     public static function countNewAgents($from, $to)
     {
-        $date_from = date("Y-m-d H:i",$from);
-        $date_to = date("Y-m-d H:i",$to);
+        $date_from = date("Y-m-d H:i", $from);
+        $date_to = date("Y-m-d H:i", $to);
         /** @var PDOStatement $s */
-        $s = static::execSql("SELECT * FROM agent WHERE created >= :from AND created <= :to",[
+        $s = static::execSql("SELECT * FROM agent WHERE created >= :from AND created <= :to", [
             ":from" => $date_from,
             ":to" => $date_to,
         ]);
@@ -190,7 +195,7 @@ class CAdmin {
 
     public static function addUser($u, $p)
     {
-        $s = static::execSql("INSERT INTO users (name,password,auth_key) VALUES (:name,:password,:key)",[
+        $s = static::execSql("INSERT INTO users (name,password,auth_key) VALUES (:name,:password,:key)", [
             ':name' => $u,
             ':password' => hashPassword($p),
             ':key' => generateRandomString(),
@@ -200,7 +205,7 @@ class CAdmin {
 
     public static function addTaskType($name)
     {
-        $s = static::execSql("INSERT INTO task_types (name) VALUES (:name)",[
+        $s = static::execSql("INSERT INTO task_types (name) VALUES (:name)", [
             ':name' => $name,
         ]);
         return $s->errorCode() === "00000";
@@ -220,7 +225,7 @@ class CAdmin {
 
     public static function addGroup($name)
     {
-        $s = static::execSql("INSERT INTO groups (name) VALUES (:name)",[
+        $s = static::execSql("INSERT INTO groups (name) VALUES (:name)", [
             ':name' => $name,
         ]);
         return $s->errorCode() === "00000";
@@ -246,8 +251,8 @@ class CAdmin {
 
     public static function getGroupAgentsArrayIds($id)
     {
-        $s = static::execSql("SELECT agent_id FROM agent_group WHERE group_id = :id;",[':id' => $id]);
-        return $s->fetchAll(PDO::FETCH_COLUMN,0);
+        $s = static::execSql("SELECT agent_id FROM agent_group WHERE group_id = :id;", [':id' => $id]);
+        return $s->fetchAll(PDO::FETCH_COLUMN, 0);
     }
 
     public static function getUniqueConnections()
@@ -269,8 +274,7 @@ class CAdmin {
             return false;
         }
         $s = $db->prepare("INSERT INTO agent_group VALUES (:a, :g)");
-        foreach ($agents as $idd )
-        {
+        foreach ($agents as $idd) {
             $s->execute([":g" => $id, ":a" => $idd]);
             if ($s->errorCode() !== "00000") {
                 $db->rollBack();
@@ -283,8 +287,51 @@ class CAdmin {
 
     public static function getTaskArray()
     {
-        $s = static::execSql("SELECT * FROM task;");
+        $s = static::execSql("SELECT task.id as id, task.name as name, task.type as type, task.is_common, task.additional, task.created as created, groups.name as groups FROM task  LEFT JOIN task_group  ON task_group.task_id = task.id LEFT JOIN groups  ON task_group.group_id = groups.id");
         return $s->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function addTask($name, $type_id, $is_common, $additional)
+    {
+        $sql = 'INSERT INTO task (name,type,is_common,additional) VALUES(:name,
+(SELECT name FROM task_types WHERE id = :type_id),
+:is_common,:additional)';
+        $db = static::getDb();
+        $s = $db->prepare($sql);
+        $values = [
+            ':name' => $name,
+            ':type_id' => $type_id,
+            ':is_common' => ($is_common) ? 1 : 0,
+            ':additional' => $additional
+        ];
+        $s->execute($values);
+        return $db->lastInsertId();
+    }
+
+    public static function addCommonTask($name, $type_id, $additional)
+    {
+        return static::addTask($name, $type_id, true, $additional);
+    }
+
+
+    public static function addTaskToGroup($name, $type_id, $group_id, $additional)
+    {
+        $task_id = static::addTask($name, $type_id, false, $additional);
+        if (static::addTaskGroup($task_id, $group_id))
+            return $task_id;
+        else return [
+            'id' => 0
+        ];
+    }
+
+    private static function addTaskGroup($task_id, $group_id)
+    {
+        $s = static::execSql('INSERT INTO task_group VALUES (:t,:g)', [
+            ':t' => $task_id,
+            ':g' => $group_id,
+        ]);
+
+        return $s->errorCode() == "00000";
     }
 }
 

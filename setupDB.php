@@ -36,7 +36,7 @@ function setupAPI($config)
   `updated` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
     $task_agent_index = "ALTER TABLE `task_agents`  ADD UNIQUE KEY `task_agent_unique_index` (`task_id`,`agent_id`);";
-    $fk_task_id = "ALTER TABLE `task_agents` ADD CONSTRAINT `fk_task_id` FOREIGN KEY (`task_id`) REFERENCES `temp`.`task`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;";
+    $fk_task_id = "ALTER TABLE `task_agents` ADD CONSTRAINT `fk_task_id` FOREIGN KEY (`task_id`) REFERENCES `temp`.`task`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;";
     $fk_agent_id = "ALTER TABLE `task_agents` ADD CONSTRAINT `fk_agent_id` FOREIGN KEY (`agent_id`) REFERENCES `temp`.`agent`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;";
 
     $agent_sql = "CREATE TABLE IF NOT EXISTS `agent` (
